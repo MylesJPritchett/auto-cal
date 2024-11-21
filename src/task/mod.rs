@@ -35,14 +35,40 @@ impl fmt::Display for Task {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
-            "Task: {}\nEstimated Time: {} minutes\nDue Date: {}\nStatus: {}\n",
-            self.name, self.estimated_time, self.due_date, self.status
+            "ID: {}\nTask: {}\nEstimated Time: {} minutes\nDue Date: {}\nStatus: {}\n",
+            self.id, self.name, self.estimated_time, self.due_date, self.status
         )
     }
 }
 
 pub fn schedule_tasks(tasks: &mut [Task]) {
     tasks.sort_by_key(|task| task.due_date);
+}
+
+pub fn update_status(task: &mut Task, status: Status) {
+    task.status = status;
+}
+
+pub fn get_task(tasks: &[Task], search_string: &str) -> Option<Task> {
+    let mut matching_tasks = tasks
+        .iter()
+        .filter(|task| task.id.to_string().starts_with(search_string))
+        .collect::<Vec<_>>();
+
+    if matching_tasks.len() == 1 {
+        Some(matching_tasks[0].clone())
+    } else {
+        None
+    }
+}
+
+pub fn update_task_in_list(tasks: &mut [Task], updated_task: Task) -> Result<()> {
+    if let Some(index) = tasks.iter().position(|task| task.id == updated_task.id) {
+        tasks[index] = updated_task;
+        Ok(())
+    } else {
+        Err(Error::Generic("Task not found in list".to_string()))
+    }
 }
 
 pub fn add_task(
