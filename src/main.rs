@@ -24,9 +24,8 @@ fn main() -> Result<()> {
                     due_date
                 ))
             })?;
-            let task = create_task(name, time, due_date)?;
-            append_task_to_yaml(&task, "tasks.yaml");
-            println!("Created task: {:?}", task);
+            add_task(name, time, due_date, "tasks.yaml")?;
+            println!("Created task");
         }
 
         // Handle "list" command

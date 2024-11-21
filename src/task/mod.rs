@@ -51,7 +51,17 @@ pub fn add_task(
     due_date: NaiveDate,
     file_path: &str,
 ) -> Result<()> {
-    append_task_to_yaml(&create_task(name, estimated_time, due_date)?, file_path);
+    let new_task = create_task(name, estimated_time, due_date)?;
+
+    let mut tasks = read_tasks(file_path)?;
+
+    // Append the new task
+    tasks.push(new_task.clone());
+
+    calculate_task_order(&mut tasks);
+
+    write_tasks_to_yaml(&mut tasks, file_path);
+
     Ok(())
 }
 
@@ -112,4 +122,8 @@ pub fn append_task_to_yaml(task: &Task, file_path: &str) -> Result<()> {
     tasks.push(task.clone());
 
     write_tasks_to_yaml(&mut tasks, file_path)
+}
+
+pub fn calculate_task_order(tasks: &mut [Task]) {
+    tasks.sort_by_key(|task| task.due_date);
 }
