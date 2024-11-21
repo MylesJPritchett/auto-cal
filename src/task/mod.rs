@@ -61,14 +61,10 @@ pub fn read_tasks(file_path: &str) -> Result<Vec<Task>> {
         Error::IO(e) // Automatically converts std::io::Error to Error::IO
     })?;
 
-    // Read the contents of the file into a string
-    let mut yaml_string = String::new();
-    file.read_to_string(&mut yaml_string).map_err(|e| {
-        Error::IO(e) // Automatically converts std::io::Error to Error::IO
-    })?;
+    let mut contents = std::fs::read_to_string(file_path).unwrap_or_else(|_| String::new()); // Default to empty string if file doesn't exist
 
     // Deserialize the YAML string into a Vec<Task>
-    let tasks: Vec<Task> = serde_yaml::from_str(&yaml_string).map_err(|e| {
+    let tasks: Vec<Task> = serde_yaml::from_str(&contents).map_err(|e| {
         Error::Generic(format!(
             "Failed to deserialize tasks from YAML. Error: {}",
             e
@@ -99,26 +95,7 @@ pub fn create_task(name: String, estimated_time: u32, due_date: NaiveDate) -> Re
     Ok(task)
 }
 
-pub fn append_task_to_yaml(task: &Task, file_path: &str) -> Result<()> {
-    // Read the existing YAML content
-    let mut contents = std::fs::read_to_string(file_path).unwrap_or_else(|_| String::new()); // Default to empty string if file doesn't exist
-
-    // Deserialize the existing tasks
-    let mut tasks: Vec<Task> = if contents.is_empty() {
-        Vec::new()
-    } else {
-        serde_yaml::from_str(&contents).map_err(|e| {
-            Error::Generic(format!(
-                "Failed to deserialize tasks from YAML. Error: {}",
-                e
-            ))
-        })?
-    };
-
-    // Append the new task
-    tasks.push(task.clone());
-
-    // Serialize the updated tasks to YAML
+pub fn write_tasks_to_yaml(tasks: &mut Vec<Task>, file_path: &str) -> Result<()> {
     let yaml_string = serde_yaml::to_string(&tasks)
         .map_err(|e| Error::Generic(format!("Failed to serialize tasks to YAML. Error: {}", e)))?;
 
@@ -126,4 +103,13 @@ pub fn append_task_to_yaml(task: &Task, file_path: &str) -> Result<()> {
     std::fs::write(file_path, yaml_string).map_err(Error::IO)?;
 
     Ok(())
+}
+
+pub fn append_task_to_yaml(task: &Task, file_path: &str) -> Result<()> {
+    let mut tasks = read_tasks(file_path)?;
+
+    // Append the new task
+    tasks.push(task.clone());
+
+    write_tasks_to_yaml(&mut tasks, file_path)
 }
