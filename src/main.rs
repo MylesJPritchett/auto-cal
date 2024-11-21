@@ -29,10 +29,15 @@ fn main() -> Result<()> {
         }
 
         // Handle "list" command
-        Command::List => {
+        Command::List { all } => {
             // Logic to list tasks (replace with your actual implementation)
-            println!("Listing all tasks...");
-            list_tasks(&mut read_tasks("tasks.yaml")?)?;
+            if all {
+                println!("Listing all tasks...");
+                list_all_tasks(&mut read_tasks("tasks.yaml")?)?;
+            } else {
+                print!("Listing all tasks that are not complete...");
+                list_non_complete_tasks(&read_tasks("tasks.yaml")?)?;
+            }
         }
         Command::Start { id } => {
             println!("Searching for Task to Start");
@@ -54,6 +59,19 @@ fn main() -> Result<()> {
                 Some(mut task) => {
                     update_status(&mut task, Status::OnHold);
                     println!("Stopping Task: {}", task);
+                    update_task_in_list(&mut tasks, task);
+                    write_tasks_to_yaml(&mut tasks, "tasks.yaml");
+                }
+                None => println!("No Single Task Found"),
+            }
+        }
+        Command::Complete { id } => {
+            println!("Searching for Task to Complete");
+            let mut tasks = read_tasks("tasks.yaml")?;
+            match get_task(&tasks, &id) {
+                Some(mut task) => {
+                    update_status(&mut task, Status::Completed);
+                    println!("Completed Task: {}", task);
                     update_task_in_list(&mut tasks, task);
                     write_tasks_to_yaml(&mut tasks, "tasks.yaml");
                 }
@@ -87,12 +105,19 @@ enum Command {
         #[arg(short, long)]
         due_date: String,
     },
-    List,
+    List {
+        #[arg(short, long, action)]
+        all: bool,
+    },
     Start {
         #[arg(short, long)]
         id: String,
     },
     Stop {
+        #[arg(short, long)]
+        id: String,
+    },
+    Complete {
         #[arg(short, long)]
         id: String,
     },

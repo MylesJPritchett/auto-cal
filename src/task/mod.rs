@@ -15,7 +15,7 @@ pub struct Task {
     pub created_date: DateTime<Utc>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub enum Status {
     UnStarted,
     InProgress,
@@ -110,7 +110,15 @@ pub fn read_tasks(file_path: &str) -> Result<Vec<Task>> {
     Ok(tasks)
 }
 
-pub fn list_tasks(tasks: &mut Vec<Task>) -> Result<()> {
+pub fn list_non_complete_tasks(tasks: &[Task]) -> Result<()> {
+    tasks
+        .iter()
+        .filter(|task| task.status != Status::Completed)
+        .for_each(|task| println!("{}", task));
+    Ok(())
+}
+
+pub fn list_all_tasks(tasks: &mut Vec<Task>) -> Result<()> {
     for task in tasks {
         println!("{}", task);
     }
