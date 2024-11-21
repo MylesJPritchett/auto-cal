@@ -34,6 +34,32 @@ fn main() -> Result<()> {
             println!("Listing all tasks...");
             list_tasks(&mut read_tasks("tasks.yaml")?)?;
         }
+        Command::Start { id } => {
+            println!("Searching for Task to Start");
+            let mut tasks = read_tasks("tasks.yaml")?;
+            match get_task(&tasks, &id) {
+                Some(mut task) => {
+                    update_status(&mut task, Status::InProgress);
+                    println!("Starting Task: {}", task);
+                    update_task_in_list(&mut tasks, task);
+                    write_tasks_to_yaml(&mut tasks, "tasks.yaml");
+                }
+                None => println!("No Single Task Found"),
+            }
+        }
+        Command::Stop { id } => {
+            println!("Searching for Task to Stop");
+            let mut tasks = read_tasks("tasks.yaml")?;
+            match get_task(&tasks, &id) {
+                Some(mut task) => {
+                    update_status(&mut task, Status::OnHold);
+                    println!("Stopping Task: {}", task);
+                    update_task_in_list(&mut tasks, task);
+                    write_tasks_to_yaml(&mut tasks, "tasks.yaml");
+                }
+                None => println!("No Single Task Found"),
+            }
+        }
     }
     Ok(())
 }
@@ -62,4 +88,12 @@ enum Command {
         due_date: String,
     },
     List,
+    Start {
+        #[arg(short, long)]
+        id: String,
+    },
+    Stop {
+        #[arg(short, long)]
+        id: String,
+    },
 }
