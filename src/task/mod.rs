@@ -3,6 +3,7 @@ use chrono::{NaiveDate, Utc};
 use std::fmt;
 use std::fs::{File, OpenOptions};
 use std::io::{Read, Write};
+use std::str::FromStr;
 use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -36,6 +37,30 @@ pub enum Priority {
 impl fmt::Display for Status {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{:?}", self) // prints the variant as a string
+    }
+}
+
+impl FromStr for Status {
+    type Err = Error;
+
+    fn from_str(s: &str) -> Result<Self> {
+        match s.to_lowercase().as_str() {
+            "unstarted" => Ok(Status::UnStarted),
+            "inprogress" => Ok(Status::InProgress),
+            "completed" => Ok(Status::Completed),
+            "onhold" => Ok(Status::OnHold),
+            "deleted" => Ok(Status::Deleted),
+            _ => Err(Error::Generic(format!("Invalid status: {}", s))),
+        }
+    }
+}
+
+impl Status {
+    pub fn from_option(s: Option<String>) -> Result<Option<Status>> {
+        match s {
+            Some(status_str) => Status::from_str(&status_str).map(Some),
+            None => Ok(None),
+        }
     }
 }
 
@@ -208,4 +233,25 @@ pub fn append_task_to_yaml(task: &Task, file_path: &str) -> Result<()> {
     tasks.push(task.clone());
 
     write_tasks_to_yaml(&mut tasks, file_path)
+}
+
+pub fn edit_task(
+    old_task: &Task,
+    name: Option<String>,
+    estimated_time: Option<u32>,
+    due_date: Option<NaiveDate>,
+    status: Option<Status>,
+    priority_level: Option<Priority>,
+) -> Result<Task> {
+    let task = Task {
+        id: old_task.id,
+        name: name.unwrap_or(old_task.name.clone()),
+        estimated_time: estimated_time.unwrap_or(old_task.estimated_time),
+        due_date: due_date.unwrap_or(old_task.due_date),
+        status: status.unwrap_or(old_task.status.clone()),
+        created_date: old_task.created_date,
+        priority_level: priority_level.unwrap_or(old_task.priority_level.clone()),
+    };
+
+    Ok(task)
 }
