@@ -1,10 +1,10 @@
 use crate::prelude::*;
-use chrono::{NaiveDate, Utc};
 use std::fmt;
-use std::fs::{File, OpenOptions};
-use std::io::{Read, Write};
 use std::str::FromStr;
-use uuid::Uuid;
+
+pub mod create;
+pub mod display;
+pub mod edit;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Task {
@@ -115,10 +115,6 @@ pub fn schedule_tasks(tasks: &mut [Task]) {
     });
 }
 
-pub fn update_status(task: &mut Task, status: Status) {
-    task.status = status;
-}
-
 pub fn get_task(tasks: &[Task], search_string: &str) -> Option<Task> {
     let mut matching_tasks = tasks
         .iter()
@@ -130,128 +126,4 @@ pub fn get_task(tasks: &[Task], search_string: &str) -> Option<Task> {
     } else {
         None
     }
-}
-
-pub fn update_task_in_list(tasks: &mut [Task], updated_task: Task) -> Result<()> {
-    if let Some(index) = tasks.iter().position(|task| task.id == updated_task.id) {
-        tasks[index] = updated_task;
-        Ok(())
-    } else {
-        Err(Error::Generic("Task not found in list".to_string()))
-    }
-}
-
-pub fn add_task(
-    name: String,
-    estimated_time: u32,
-    due_date: NaiveDate,
-    priority_level: Priority,
-    file_path: &str,
-) -> Result<()> {
-    let new_task = create_task(name, estimated_time, due_date, priority_level)?;
-
-    let mut tasks = read_tasks(file_path)?;
-
-    // Append the new task
-    tasks.push(new_task.clone());
-
-    schedule_tasks(&mut tasks);
-
-    write_tasks_to_yaml(&mut tasks, file_path);
-
-    Ok(())
-}
-
-pub fn read_tasks(file_path: &str) -> Result<Vec<Task>> {
-    // Open the file for reading
-    let mut file = File::open(file_path).map_err(|e| {
-        Error::IO(e) // Automatically converts std::io::Error to Error::IO
-    })?;
-
-    let mut contents = std::fs::read_to_string(file_path).unwrap_or_else(|_| String::new()); // Default to empty string if file doesn't exist
-
-    // Deserialize the YAML string into a Vec<Task>
-    let tasks: Vec<Task> = serde_yaml::from_str(&contents).map_err(|e| {
-        Error::Generic(format!(
-            "Failed to deserialize tasks from YAML. Error: {}",
-            e
-        ))
-    })?;
-
-    Ok(tasks)
-}
-
-pub fn list_non_complete_tasks(tasks: &[Task]) -> Result<()> {
-    tasks
-        .iter()
-        .filter(|task| task.status != Status::Completed)
-        .for_each(|task| println!("{}", task));
-    Ok(())
-}
-
-pub fn list_all_tasks(tasks: &mut Vec<Task>) -> Result<()> {
-    for task in tasks {
-        println!("{}", task);
-    }
-    Ok(())
-}
-
-pub fn create_task(
-    name: String,
-    estimated_time: u32,
-    due_date: NaiveDate,
-    priority_level: Priority,
-) -> Result<Task> {
-    let current_date_time = Utc::now();
-    let task = Task {
-        id: Uuid::new_v4(),
-        name,
-        estimated_time,
-        due_date,
-        status: Status::UnStarted,
-        created_date: current_date_time,
-        priority_level,
-    };
-
-    Ok(task)
-}
-
-pub fn write_tasks_to_yaml(tasks: &mut Vec<Task>, file_path: &str) -> Result<()> {
-    let yaml_string = serde_yaml::to_string(&tasks)
-        .map_err(|e| Error::Generic(format!("Failed to serialize tasks to YAML. Error: {}", e)))?;
-
-    // Write the updated YAML content to the file
-    std::fs::write(file_path, yaml_string).map_err(Error::IO)?;
-
-    Ok(())
-}
-
-pub fn append_task_to_yaml(task: &Task, file_path: &str) -> Result<()> {
-    let mut tasks = read_tasks(file_path)?;
-
-    // Append the new task
-    tasks.push(task.clone());
-
-    write_tasks_to_yaml(&mut tasks, file_path)
-}
-
-pub fn edit_task(
-    old_task: &Task,
-    name: Option<String>,
-    estimated_time: Option<u32>,
-    due_date: Option<NaiveDate>,
-    status: Option<Status>,
-    priority_level: Option<Priority>,
-) -> Result<Task> {
-    let task = Task {
-        id: old_task.id,
-        name: name.unwrap_or(old_task.name.clone()),
-        estimated_time: estimated_time.unwrap_or(old_task.estimated_time),
-        due_date: due_date.unwrap_or(old_task.due_date),
-        status: status.unwrap_or(old_task.status.clone()),
-        created_date: old_task.created_date,
-        priority_level: priority_level.unwrap_or(old_task.priority_level.clone()),
-    };
-
-    Ok(task)
 }
