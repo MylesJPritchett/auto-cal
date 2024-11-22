@@ -13,6 +13,7 @@ pub struct Task {
     pub due_date: NaiveDate,
     pub status: Status,
     pub created_date: DateTime<Utc>,
+    pub priority_level: Priority,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -22,6 +23,14 @@ pub enum Status {
     Completed,
     OnHold,
     Deleted,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq, Ord, PartialOrd)]
+pub enum Priority {
+    Urgent = 1,
+    High = 2,
+    Medium = 3,
+    Low = 4,
 }
 
 impl fmt::Display for Status {
@@ -35,14 +44,50 @@ impl fmt::Display for Task {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
-            "ID: {}\nTask: {}\nEstimated Time: {} minutes\nDue Date: {}\nStatus: {}\n",
-            self.id, self.name, self.estimated_time, self.due_date, self.status
+            "ID: {}\nTask: {}\nEstimated Time: {} minutes\nDue Date: {}\nStatus: {}\nPriority: {}\n",
+            self.id, self.name, self.estimated_time, self.due_date, self.status, self.priority_level
         )
     }
 }
 
+impl fmt::Display for Priority {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}", self) // prints the variant as a string
+    }
+}
+
+impl Priority {
+    fn from_input(input: Option<String>) -> Self {
+        match input
+            .and_then(|s| s.parse::<u8>().ok()) // Parse input to `u8` if provided
+        {
+            Some(1) => Priority::Urgent,
+            Some(2) => Priority::High,
+            Some(3) => Priority::Medium,
+            Some(4) => Priority::Low,
+            _ => Priority::Medium, // Default to Medium
+        }
+    }
+}
+
+pub fn parse_priority(input: Option<String>) -> Option<Priority> {
+    input.and_then(|s| match s.parse::<u8>() {
+        Ok(1) => Some(Priority::Urgent),
+        Ok(2) => Some(Priority::High),
+        Ok(3) => Some(Priority::Medium),
+        Ok(4) => Some(Priority::Low),
+        _ => None, // Invalid input
+    })
+}
+
 pub fn schedule_tasks(tasks: &mut [Task]) {
-    tasks.sort_by_key(|task| task.due_date);
+    tasks.sort_by(|a, b| {
+        // First compare by priority level (ascending)
+        a.priority_level
+            .cmp(&b.priority_level)
+            // Then compare by due date if priority levels are equal
+            .then_with(|| a.due_date.cmp(&b.due_date))
+    });
 }
 
 pub fn update_status(task: &mut Task, status: Status) {
@@ -75,16 +120,17 @@ pub fn add_task(
     name: String,
     estimated_time: u32,
     due_date: NaiveDate,
+    priority_level: Priority,
     file_path: &str,
 ) -> Result<()> {
-    let new_task = create_task(name, estimated_time, due_date)?;
+    let new_task = create_task(name, estimated_time, due_date, priority_level)?;
 
     let mut tasks = read_tasks(file_path)?;
 
     // Append the new task
     tasks.push(new_task.clone());
 
-    calculate_task_order(&mut tasks);
+    schedule_tasks(&mut tasks);
 
     write_tasks_to_yaml(&mut tasks, file_path);
 
@@ -125,7 +171,12 @@ pub fn list_all_tasks(tasks: &mut Vec<Task>) -> Result<()> {
     Ok(())
 }
 
-pub fn create_task(name: String, estimated_time: u32, due_date: NaiveDate) -> Result<Task> {
+pub fn create_task(
+    name: String,
+    estimated_time: u32,
+    due_date: NaiveDate,
+    priority_level: Priority,
+) -> Result<Task> {
     let current_date_time = Utc::now();
     let task = Task {
         id: Uuid::new_v4(),
@@ -134,6 +185,7 @@ pub fn create_task(name: String, estimated_time: u32, due_date: NaiveDate) -> Re
         due_date,
         status: Status::UnStarted,
         created_date: current_date_time,
+        priority_level,
     };
 
     Ok(task)
@@ -156,8 +208,4 @@ pub fn append_task_to_yaml(task: &Task, file_path: &str) -> Result<()> {
     tasks.push(task.clone());
 
     write_tasks_to_yaml(&mut tasks, file_path)
-}
-
-pub fn calculate_task_order(tasks: &mut [Task]) {
-    tasks.sort_by_key(|task| task.due_date);
 }
