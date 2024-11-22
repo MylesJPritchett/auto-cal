@@ -17,6 +17,7 @@ fn main() -> Result<()> {
             name,
             time,
             due_date,
+            priority,
         } => {
             let due_date = NaiveDate::parse_from_str(&due_date, "%Y-%m-%d").map_err(|_| {
                 Error::Generic(format!(
@@ -24,7 +25,10 @@ fn main() -> Result<()> {
                     due_date
                 ))
             })?;
-            add_task(name, time, due_date, "tasks.yaml")?;
+
+            let priority = parse_priority(priority).unwrap_or(Priority::Medium);
+
+            add_task(name, time, due_date, priority, "tasks.yaml")?;
             println!("Created task");
         }
 
@@ -104,6 +108,10 @@ enum Command {
         /// Task due date in YYYY-MM-DD format
         #[arg(short, long)]
         due_date: String,
+
+        /// Task Priority from 1 for urgent to 4 for Low
+        #[arg(short, long)]
+        priority: Option<String>,
     },
     List {
         #[arg(short, long, action)]
