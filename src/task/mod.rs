@@ -13,6 +13,8 @@ pub struct Task {
     pub due_date: NaiveDate,
     pub status: Status,
     pub created_date: DateTime<Utc>,
+    pub blocks: Vec<Uuid>,
+    pub blocked_by: Vec<Uuid>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -134,6 +136,8 @@ pub fn create_task(name: String, estimated_time: u32, due_date: NaiveDate) -> Re
         due_date,
         status: Status::UnStarted,
         created_date: current_date_time,
+        blocks: Vec::new(),
+        blocked_by: Vec::new(),
     };
 
     Ok(task)
