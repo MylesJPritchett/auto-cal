@@ -16,21 +16,24 @@ pub fn update_task_in_list(tasks: &mut [Task], updated_task: Task) -> Result<()>
 pub fn edit_task(
     old_task: &Task,
     name: Option<String>,
-    estimated_time: Option<u32>,
+    time_remaining: Option<u32>,
     due_date: Option<NaiveDate>,
     status: Option<Status>,
     priority_level: Option<Priority>,
     minimum_chunk_size: Option<u32>,
+    elapsed_time: Option<u32>,
 ) -> Result<Task> {
     let task = Task {
         id: old_task.id,
         name: name.unwrap_or(old_task.name.clone()),
-        estimated_time: estimated_time.unwrap_or(old_task.estimated_time),
+        time_remaining: time_remaining.unwrap_or(old_task.time_remaining),
         due_date: due_date.unwrap_or(old_task.due_date),
         status: status.unwrap_or(old_task.status.clone()),
         created_date: old_task.created_date,
         priority_level: priority_level.unwrap_or(old_task.priority_level.clone()),
         minimum_chunk_size: minimum_chunk_size.or(old_task.minimum_chunk_size.clone()),
+        work_intervals: old_task.work_intervals.clone(),
+        elapsed_time: elapsed_time.unwrap_or(old_task.elapsed_time),
     };
 
     Ok(task)

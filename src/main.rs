@@ -35,7 +35,17 @@ fn main() -> Result<()> {
             status,
             priority,
             chunk_size,
-        } => handle_edit(id, name, time, due_date, status, priority, chunk_size)?,
+            elapsed_time,
+        } => handle_edit(
+            id,
+            name,
+            time,
+            due_date,
+            status,
+            priority,
+            chunk_size,
+            elapsed_time,
+        )?,
     }
     Ok(())
 }

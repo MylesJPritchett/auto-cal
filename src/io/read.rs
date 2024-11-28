@@ -32,21 +32,22 @@ mod tests {
         let yaml_content = r#"
         - id: "5275239b-bc94-467a-b34c-141498417c7d"
           name: "high priority"
-          estimated_time: 23
+          time_remaining: 23
           due_date: "2024-11-15"
           status: "UnStarted"
           created_date: "2024-11-22T01:21:52.020546800Z"
           priority_level: "Urgent"
+
         - id: "62688812-f3bd-418c-a5db-42457d63a3a7"
           name: "high priority"
-          estimated_time: 23
+          time_remaining: 23
           due_date: "2024-11-15"
           status: "UnStarted"
           created_date: "2024-11-22T01:13:39.845179100Z"
           priority_level: "High"
         - id: "49b03535-5595-4f96-80de-dc2b8a325add"
           name: "low priority"
-          estimated_time: 23
+          time_remaining: 23
           due_date: "2024-11-26"
           status: "UnStarted"
           created_date: "2024-11-22T01:27:48.823644200Z"
