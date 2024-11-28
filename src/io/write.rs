@@ -31,6 +31,7 @@ mod tests {
                 status: Status::UnStarted,
                 created_date: chrono::Utc::now(),
                 priority_level: Priority::High,
+                minimum_chunk_size: Some(30),
             },
             Task {
                 id: uuid::Uuid::new_v4(),
@@ -40,6 +41,7 @@ mod tests {
                 status: Status::InProgress,
                 created_date: chrono::Utc::now(),
                 priority_level: Priority::Urgent,
+                minimum_chunk_size: None,
             },
         ];
 
@@ -84,6 +86,7 @@ mod tests {
             status: Status::UnStarted,
             created_date: chrono::Utc::now(),
             priority_level: Priority::High,
+            minimum_chunk_size: None,
         }];
 
         let result = write_tasks_to_yaml(&mut tasks, invalid_path);

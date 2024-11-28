@@ -6,8 +6,8 @@ impl fmt::Display for Task {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
-            "ID: {}\nTask: {}\nEstimated Time: {} minutes\nDue Date: {}\nStatus: {}\nPriority: {}\n",
-            self.id, self.name, self.estimated_time, self.due_date, self.status, self.priority_level
+            "ID: {}\nTask: {}\nEstimated Time: {} minutes\nDue Date: {}\nStatus: {}\nPriority: {}\nChunks Remaining: {}",
+            self.id, self.name, self.estimated_time, self.due_date, self.status, self.priority_level, chunks_remaining(self)
         )
     }
 }
@@ -54,6 +54,7 @@ mod tests {
                 status: Status::InProgress,
                 created_date: Utc::now(),
                 priority_level: Priority::High,
+                minimum_chunk_size: None,
             },
             Task {
                 id: Uuid::new_v4(),
@@ -63,6 +64,7 @@ mod tests {
                 status: Status::UnStarted,
                 created_date: Utc::now(),
                 priority_level: Priority::Medium,
+                minimum_chunk_size: None,
             },
             Task {
                 id: Uuid::new_v4(),
@@ -72,6 +74,7 @@ mod tests {
                 status: Status::Completed,
                 created_date: Utc::now(),
                 priority_level: Priority::Urgent,
+                minimum_chunk_size: Some(30),
             },
         ]
     }

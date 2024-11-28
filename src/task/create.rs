@@ -60,9 +60,16 @@ mod tests {
         let estimated_time = 3;
         let due_date = NaiveDate::from_ymd_opt(2024, 12, 31).unwrap();
         let priority_level = Priority::High;
+        let minimum_chunk_size = None;
 
-        let task =
-            create_task(task_name.clone(), estimated_time, due_date, priority_level).unwrap();
+        let task = create_task(
+            task_name.clone(),
+            estimated_time,
+            due_date,
+            priority_level,
+            minimum_chunk_size,
+        )
+        .unwrap();
 
         assert_eq!(task.name, task_name);
         assert_eq!(task.estimated_time, estimated_time);
