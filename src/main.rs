@@ -21,7 +21,8 @@ fn main() -> Result<()> {
             time,
             due_date,
             priority,
-        } => handle_create(name, time, due_date, priority)?,
+            chunk_size,
+        } => handle_create(name, time, due_date, priority, chunk_size)?,
         Command::List { all } => handle_list(all)?,
         Command::Start { id } => handle_start(id)?,
         Command::Stop { id } => handle_stop(id)?,
@@ -33,7 +34,8 @@ fn main() -> Result<()> {
             due_date,
             status,
             priority,
-        } => handle_edit(id, name, time, due_date, status, priority)?,
+            chunk_size,
+        } => handle_edit(id, name, time, due_date, status, priority, chunk_size)?,
     }
     Ok(())
 }

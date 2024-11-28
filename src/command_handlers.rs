@@ -5,6 +5,7 @@ pub fn handle_create(
     time: u32,
     due_date: String,
     priority: Option<String>,
+    minimum_chunk_size: Option<u32>,
 ) -> Result<()> {
     let due_date = NaiveDate::parse_from_str(&due_date, "%Y-%m-%d").map_err(|_| {
         Error::Generic(format!(
@@ -15,7 +16,14 @@ pub fn handle_create(
 
     let priority = parse_priority(priority).unwrap_or(Priority::Medium);
 
-    add_task(name, time, due_date, priority, "tasks.yaml")?;
+    add_task(
+        name,
+        time,
+        due_date,
+        priority,
+        minimum_chunk_size,
+        "tasks.yaml",
+    )?;
     println!("Created task");
     Ok(())
 }
@@ -86,6 +94,7 @@ pub fn handle_edit(
     due_date: Option<String>,
     status: Option<String>,
     priority: Option<String>,
+    minimum_chunk_size: Option<u32>,
 ) -> Result<()> {
     println!("Searching for Task to Edit");
     let mut tasks = read_tasks("tasks.yaml")?;
@@ -108,7 +117,15 @@ pub fn handle_edit(
                 Error::Generic(format!("Failed to parse status: {}", e))
             })?;
 
-            let task = edit_task(&task, name, time, due_date, status, priority)?;
+            let task = edit_task(
+                &task,
+                name,
+                time,
+                due_date,
+                status,
+                priority,
+                minimum_chunk_size,
+            )?;
             println!("Edited Task: {}", task);
             update_task_in_list(&mut tasks, task);
             write_tasks_to_yaml(&mut tasks, "tasks.yaml");

@@ -28,6 +28,9 @@ pub enum Command {
         /// Task Priority from 1 for urgent to 4 for Low
         #[arg(short, long)]
         priority: Option<String>,
+
+        #[arg(short, long)]
+        chunk_size: Option<u32>,
     },
     List {
         #[arg(short, long, action)]
@@ -67,6 +70,9 @@ pub enum Command {
         /// Task Priority from 1 for urgent to 4 for Low
         #[arg(short, long)]
         priority: Option<String>,
+
+        #[arg(short, long)]
+        chunk_size: Option<u32>,
     },
 }
 

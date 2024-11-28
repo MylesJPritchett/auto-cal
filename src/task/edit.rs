@@ -20,6 +20,7 @@ pub fn edit_task(
     due_date: Option<NaiveDate>,
     status: Option<Status>,
     priority_level: Option<Priority>,
+    minimum_chunk_size: Option<u32>,
 ) -> Result<Task> {
     let task = Task {
         id: old_task.id,
@@ -29,6 +30,7 @@ pub fn edit_task(
         status: status.unwrap_or(old_task.status.clone()),
         created_date: old_task.created_date,
         priority_level: priority_level.unwrap_or(old_task.priority_level.clone()),
+        minimum_chunk_size: minimum_chunk_size.or(old_task.minimum_chunk_size.clone()),
     };
 
     Ok(task)
