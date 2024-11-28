@@ -49,7 +49,7 @@ mod tests {
     fn create_task_valid() {
         let task_name = "Test Task".to_string();
         let estimated_time = 3;
-        let due_date = NaiveDate::from_ymd(2024, 12, 31);
+        let due_date = NaiveDate::from_ymd_opt(2024, 12, 31).unwrap();
         let priority_level = Priority::High;
 
         let task =
