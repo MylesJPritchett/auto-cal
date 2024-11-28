@@ -104,3 +104,9 @@ pub fn get_task(tasks: &[Task], search_string: &str) -> Option<Task> {
         None
     }
 }
+
+pub fn chunks_remaining(task: &Task) -> u32 {
+    task.minimum_chunk_size
+        .map_or(0, |chunk_size| task.estimated_time / chunk_size)
+        + 1
+}
