@@ -15,6 +15,7 @@ pub struct Task {
     pub status: Status,
     pub created_date: DateTime<Utc>,
     pub priority_level: Priority,
+    pub minimum_chunk_size: Option<u32>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]

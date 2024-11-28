@@ -5,9 +5,16 @@ pub fn add_task(
     estimated_time: u32,
     due_date: NaiveDate,
     priority_level: Priority,
+    minimum_chunk_size: Option<u32>,
     file_path: &str,
 ) -> Result<()> {
-    let new_task = create_task(name, estimated_time, due_date, priority_level)?;
+    let new_task = create_task(
+        name,
+        estimated_time,
+        due_date,
+        priority_level,
+        minimum_chunk_size,
+    )?;
 
     let mut tasks = read_tasks(file_path)?;
 
@@ -26,6 +33,7 @@ pub fn create_task(
     estimated_time: u32,
     due_date: NaiveDate,
     priority_level: Priority,
+    minimum_chunk_size: Option<u32>,
 ) -> Result<Task> {
     let current_date_time = Utc::now();
     let task = Task {
@@ -36,6 +44,7 @@ pub fn create_task(
         status: Status::UnStarted,
         created_date: current_date_time,
         priority_level,
+        minimum_chunk_size,
     };
 
     Ok(task)
