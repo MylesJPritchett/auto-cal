@@ -1,4 +1,5 @@
 use crate::prelude::*;
+use core::panic;
 use std::str::FromStr;
 
 pub mod create;
@@ -9,12 +10,14 @@ pub mod edit;
 pub struct Task {
     pub id: Uuid,
     pub name: String,
-    pub estimated_time: u32,
+    pub time_remaining: u32,
+    pub elapsed_time: u32,
     pub due_date: NaiveDate,
     pub status: Status,
     pub created_date: DateTime<Utc>,
     pub priority_level: Priority,
     pub minimum_chunk_size: Option<u32>,
+    pub work_intervals: Vec<(DateTime<Utc>, Option<DateTime<Utc>>)>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
@@ -107,6 +110,36 @@ pub fn get_task(tasks: &[Task], search_string: &str) -> Option<Task> {
 
 pub fn chunks_remaining(task: &Task) -> u32 {
     task.minimum_chunk_size
-        .map_or(0, |chunk_size| task.estimated_time / chunk_size)
+        .map_or(0, |chunk_size| task.time_remaining / chunk_size)
         + 1
+}
+
+impl Task {
+    pub fn start_work(&mut self) {
+        if self.status == Status::InProgress {
+            panic!("Task is already in progress");
+        }
+        self.status = Status::InProgress;
+        self.work_intervals.push((Utc::now(), None));
+    }
+    pub fn stop_work(&mut self) {
+        if self.status != Status::InProgress {
+            panic!("Task is not currently in progress");
+        }
+        self.status = Status::OnHold;
+
+        if let Some((start, end_time)) = self.work_intervals.last_mut() {
+            let now = Utc::now();
+            *end_time = Some(now);
+
+            let elapsed_minutes = (now - *start).num_minutes() as u32;
+
+            self.elapsed_time += elapsed_minutes;
+            self.time_remaining = self.time_remaining.saturating_sub(elapsed_minutes);
+        }
+    }
+
+    pub fn is_complete(&self) -> bool {
+        self.time_remaining == 0
+    }
 }

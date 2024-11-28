@@ -46,7 +46,7 @@ pub fn handle_start(id: String) -> Result<()> {
     let mut tasks = read_tasks("tasks.yaml")?;
     match get_task(&tasks, &id) {
         Some(mut task) => {
-            update_status(&mut task, Status::InProgress);
+            task.start_work();
             println!("Starting Task: {}", task);
             update_task_in_list(&mut tasks, task);
             write_tasks_to_yaml(&mut tasks, "tasks.yaml");
@@ -61,7 +61,7 @@ pub fn handle_stop(id: String) -> Result<()> {
     let mut tasks = read_tasks("tasks.yaml")?;
     match get_task(&tasks, &id) {
         Some(mut task) => {
-            update_status(&mut task, Status::OnHold);
+            task.stop_work();
             println!("Stopping Task: {}", task);
             update_task_in_list(&mut tasks, task);
             write_tasks_to_yaml(&mut tasks, "tasks.yaml");
@@ -95,6 +95,7 @@ pub fn handle_edit(
     status: Option<String>,
     priority: Option<String>,
     minimum_chunk_size: Option<u32>,
+    elapsed_time: Option<u32>,
 ) -> Result<()> {
     println!("Searching for Task to Edit");
     let mut tasks = read_tasks("tasks.yaml")?;
@@ -125,6 +126,7 @@ pub fn handle_edit(
                 status,
                 priority,
                 minimum_chunk_size,
+                elapsed_time,
             )?;
             println!("Edited Task: {}", task);
             update_task_in_list(&mut tasks, task);

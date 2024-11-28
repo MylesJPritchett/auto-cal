@@ -73,6 +73,9 @@ pub enum Command {
 
         #[arg(short, long)]
         chunk_size: Option<u32>,
+
+        #[arg(short, long)]
+        elapsed_time: Option<u32>,
     },
 }
 

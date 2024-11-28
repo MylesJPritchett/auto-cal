@@ -6,8 +6,8 @@ impl fmt::Display for Task {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
-            "ID: {}\nTask: {}\nEstimated Time: {} minutes\nDue Date: {}\nStatus: {}\nPriority: {}\nChunks Remaining: {}",
-            self.id, self.name, self.estimated_time, self.due_date, self.status, self.priority_level, chunks_remaining(self)
+            "ID: {}\nTask: {}\nTime Remaining: {} minutes\nDue Date: {}\nStatus: {}\nPriority: {}\nChunks Remaining: {}",
+            self.id, self.name, self.time_remaining, self.due_date, self.status, self.priority_level, chunks_remaining(self)
         )
     }
 }
@@ -49,32 +49,38 @@ mod tests {
             Task {
                 id: Uuid::new_v4(),
                 name: "Complete Rust project".to_string(),
-                estimated_time: 120,
+                time_remaining: 120,
                 due_date: NaiveDate::from_ymd_opt(2024, 12, 1).unwrap(),
                 status: Status::InProgress,
                 created_date: Utc::now(),
                 priority_level: Priority::High,
                 minimum_chunk_size: None,
+                elapsed_time: 0,
+                work_intervals: vec![(chrono::Utc::now(), None)],
             },
             Task {
                 id: Uuid::new_v4(),
                 name: "Read documentation".to_string(),
-                estimated_time: 60,
+                time_remaining: 60,
                 due_date: NaiveDate::from_ymd_opt(2024, 11, 25).unwrap(),
                 status: Status::UnStarted,
                 created_date: Utc::now(),
                 priority_level: Priority::Medium,
                 minimum_chunk_size: None,
+                elapsed_time: 0,
+                work_intervals: vec![(chrono::Utc::now(), None)],
             },
             Task {
                 id: Uuid::new_v4(),
                 name: "Prepare presentation".to_string(),
-                estimated_time: 90,
+                time_remaining: 90,
                 due_date: NaiveDate::from_ymd_opt(2024, 11, 29).unwrap(),
                 status: Status::Completed,
                 created_date: Utc::now(),
                 priority_level: Priority::Urgent,
                 minimum_chunk_size: Some(30),
+                elapsed_time: 0,
+                work_intervals: vec![(chrono::Utc::now(), None)],
             },
         ]
     }

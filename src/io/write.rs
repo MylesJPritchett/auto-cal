@@ -26,22 +26,26 @@ mod tests {
             Task {
                 id: uuid::Uuid::new_v4(),
                 name: "Sample Task 1".to_string(),
-                estimated_time: 5,
+                time_remaining: 5,
                 due_date: chrono::NaiveDate::from_ymd_opt(2024, 11, 30).unwrap(),
                 status: Status::UnStarted,
                 created_date: chrono::Utc::now(),
                 priority_level: Priority::High,
                 minimum_chunk_size: Some(30),
+                elapsed_time: 0,
+                work_intervals: vec![(chrono::Utc::now(), None)],
             },
             Task {
                 id: uuid::Uuid::new_v4(),
                 name: "Sample Task 2".to_string(),
-                estimated_time: 8,
+                time_remaining: 8,
                 due_date: chrono::NaiveDate::from_ymd_opt(2024, 12, 1).unwrap(),
                 status: Status::InProgress,
                 created_date: chrono::Utc::now(),
                 priority_level: Priority::Urgent,
                 minimum_chunk_size: None,
+                elapsed_time: 0,
+                work_intervals: vec![(chrono::Utc::now(), None)],
             },
         ];
 
@@ -81,12 +85,14 @@ mod tests {
         let mut tasks = vec![Task {
             id: uuid::Uuid::new_v4(),
             name: "Sample Task".to_string(),
-            estimated_time: 5,
+            time_remaining: 5,
             due_date: chrono::NaiveDate::from_ymd_opt(2024, 11, 30).unwrap(),
             status: Status::UnStarted,
             created_date: chrono::Utc::now(),
             priority_level: Priority::High,
             minimum_chunk_size: None,
+            elapsed_time: 0,
+            work_intervals: vec![(chrono::Utc::now(), None)],
         }];
 
         let result = write_tasks_to_yaml(&mut tasks, invalid_path);
