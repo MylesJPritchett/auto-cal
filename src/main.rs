@@ -14,6 +14,7 @@ mod utils;
 
 fn main() -> Result<()> {
     let cli = Cli::parse_cli(); // Use the parse_cli function
+    let file_path = "tasks.yaml";
 
     match cli.command {
         Command::Create {
@@ -21,11 +22,11 @@ fn main() -> Result<()> {
             time,
             due_date,
             priority,
-        } => handle_create(name, time, due_date, priority)?,
-        Command::List { all } => handle_list(all)?,
-        Command::Start { id } => handle_start(id)?,
-        Command::Stop { id } => handle_stop(id)?,
-        Command::Complete { id } => handle_complete(id)?,
+        } => handle_create(name, time, due_date, priority, file_path)?,
+        Command::List { all } => handle_list(all, file_path)?,
+        Command::Start { id } => handle_start(id, file_path)?,
+        Command::Stop { id } => handle_stop(id, file_path)?,
+        Command::Complete { id } => handle_complete(id, file_path)?,
         Command::Edit {
             id,
             name,
@@ -33,7 +34,7 @@ fn main() -> Result<()> {
             due_date,
             status,
             priority,
-        } => handle_edit(id, name, time, due_date, status, priority)?,
+        } => handle_edit(id, name, time, due_date, status, priority, file_path)?,
     }
     Ok(())
 }
