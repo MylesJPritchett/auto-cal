@@ -32,10 +32,10 @@ pub fn handle_list(all: bool) -> Result<()> {
     // Logic to list tasks (replace with your actual implementation)
     if all {
         println!("Listing all tasks...");
-        list_all_tasks(&mut read_tasks("tasks.yaml")?)?;
+        list_tasks(&mut read_tasks("tasks.yaml")?)?;
     } else {
         print!("Listing all tasks that are not complete...");
-        list_non_complete_tasks(&read_tasks("tasks.yaml")?)?;
+        list_tasks(&mut filter_out_completed_tasks(&read_tasks("tasks.yaml")?)?);
     }
 
     Ok(())
