@@ -1,5 +1,4 @@
 use crate::prelude::*;
-use std::fmt;
 use std::str::FromStr;
 
 pub mod create;
@@ -35,12 +34,6 @@ pub enum Priority {
     Low = 4,
 }
 
-impl fmt::Display for Status {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?}", self) // prints the variant as a string
-    }
-}
-
 impl FromStr for Status {
     type Err = Error;
 
@@ -62,23 +55,6 @@ impl Status {
             Some(status_str) => Status::from_str(&status_str).map(Some),
             None => Ok(None),
         }
-    }
-}
-
-// Implement Display for Task
-impl fmt::Display for Task {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(
-            f,
-            "ID: {}\nTask: {}\nEstimated Time: {} minutes\nDue Date: {}\nStatus: {}\nPriority: {}\n",
-            self.id, self.name, self.estimated_time, self.due_date, self.status, self.priority_level
-        )
-    }
-}
-
-impl fmt::Display for Priority {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?}", self) // prints the variant as a string
     }
 }
 
