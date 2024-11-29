@@ -38,13 +38,15 @@ fn main() -> Result<()> {
             elapsed_time,
         } => handle_edit(
             id,
-            name,
-            time,
-            due_date,
-            status,
-            priority,
-            chunk_size,
-            elapsed_time,
+            TaskEditPayload {
+                name,
+                time_remaining: time,
+                due_date,
+                status,
+                priority,
+                minimum_chunk_size: chunk_size,
+                elapsed_time,
+            },
         )?,
     }
     Ok(())

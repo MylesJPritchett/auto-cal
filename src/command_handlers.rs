@@ -28,14 +28,17 @@ pub fn handle_create(
     Ok(())
 }
 
-pub fn handle_list(all: bool) -> Result<()> {
+pub fn handle_list(all: bool, count: Option<u32>) -> Result<()> {
     // Logic to list tasks (replace with your actual implementation)
     if all {
         println!("Listing all tasks...");
-        list_tasks(&mut read_tasks("tasks.yaml")?)?;
+        list_tasks(&read_tasks("tasks.yaml")?, count)?;
     } else {
         print!("Listing all tasks that are not complete...");
-        list_tasks(&mut filter_out_completed_tasks(&read_tasks("tasks.yaml")?)?);
+        list_tasks(
+            &filter_out_completed_tasks(&read_tasks("tasks.yaml")?)?,
+            count,
+        );
     }
 
     Ok(())
@@ -87,49 +90,15 @@ pub fn handle_complete(id: String) -> Result<()> {
     Ok(())
 }
 
-pub fn handle_edit(
-    id: String,
-    name: Option<String>,
-    time: Option<u32>,
-    due_date: Option<String>,
-    status: Option<String>,
-    priority: Option<String>,
-    minimum_chunk_size: Option<u32>,
-    elapsed_time: Option<u32>,
-) -> Result<()> {
+pub fn handle_edit(id: String, task_edit: TaskEditPayload) -> Result<()> {
     println!("Searching for Task to Edit");
     let mut tasks = read_tasks("tasks.yaml")?;
     match get_task(&tasks, &id) {
         Some(mut task) => {
-            let due_date: Option<NaiveDate> = due_date.and_then(|s| {
-                NaiveDate::parse_from_str(&s, "%Y-%m-%d")
-                    .map_err(|_| {
-                        Error::Generic(format!(
-                            "Invalid due date format: '{}'. Expected format: YYYY-MM-DD",
-                            s
-                        ))
-                    })
-                    .ok() // If parse fails, returns None
-            });
+            let updated_task = edit_task(&task, &task_edit)?;
 
-            let priority = parse_priority(priority);
-            let status = Status::from_option(status).map_err(|e| {
-                // Handle error if parsing status failed
-                Error::Generic(format!("Failed to parse status: {}", e))
-            })?;
-
-            let task = edit_task(
-                &task,
-                name,
-                time,
-                due_date,
-                status,
-                priority,
-                minimum_chunk_size,
-                elapsed_time,
-            )?;
-            println!("Edited Task: {}", task);
-            update_task_in_list(&mut tasks, task);
+            println!("Edited Task: {}", updated_task);
+            update_task_in_list(&mut tasks, updated_task);
             write_tasks_to_yaml(&mut tasks, "tasks.yaml");
         }
         None => println!("No Single Task Found"),

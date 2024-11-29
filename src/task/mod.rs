@@ -20,6 +20,16 @@ pub struct Task {
     pub work_intervals: Vec<(DateTime<Utc>, Option<DateTime<Utc>>)>,
 }
 
+pub struct TaskEditPayload {
+    pub name: Option<String>,
+    pub time_remaining: Option<u32>,
+    pub due_date: Option<String>,
+    pub status: Option<String>,
+    pub priority: Option<String>,
+    pub minimum_chunk_size: Option<u32>,
+    pub elapsed_time: Option<u32>,
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub enum Status {
     UnStarted,
