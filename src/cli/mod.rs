@@ -35,6 +35,9 @@ pub enum Command {
     List {
         #[arg(short, long, action)]
         all: bool,
+
+        #[arg(short, long)]
+        count: Option<u32>,
     },
     Start {
         #[arg(short, long)]

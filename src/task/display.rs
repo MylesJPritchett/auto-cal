@@ -33,10 +33,13 @@ pub fn filter_out_completed_tasks(tasks: &[Task]) -> Result<Vec<Task>> {
     Ok(filtered_tasks)
 }
 
-pub fn list_tasks(tasks: &mut Vec<Task>) -> Result<()> {
-    for task in tasks {
+pub fn list_tasks(tasks: &[Task], count: Option<u32>) -> Result<()> {
+    let num_to_display = count.map(|c| c as usize).unwrap_or(tasks.len());
+
+    for task in tasks.iter().take(num_to_display) {
         println!("{}", task);
     }
+
     Ok(())
 }
 

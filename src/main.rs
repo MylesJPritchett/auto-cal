@@ -23,7 +23,7 @@ fn main() -> Result<()> {
             priority,
             chunk_size,
         } => handle_create(name, time, due_date, priority, chunk_size)?,
-        Command::List { all } => handle_list(all)?,
+        Command::List { all, count } => handle_list(all, count)?,
         Command::Start { id } => handle_start(id)?,
         Command::Stop { id } => handle_stop(id)?,
         Command::Complete { id } => handle_complete(id)?,
